@@ -47,8 +47,10 @@ function Register() {
 
             if (response.ok) {
                 console.log('Registration successful');
+                alert('Registration successful');
             } else {
                 console.error('Registration failed');
+                alert('Registration failed');
             }
         } catch (error) {
             console.error('Error during registration:', error);

@@ -7,7 +7,7 @@ function CourseList() {
   const { t } = useTranslation();
   const { selectedLanguage } = useLanguage();
   const [courses, setCourses] = useState([]);
-  const [courseNameTranslations, setCourseNameTranslations] = useState({});
+  const [courseDetailsTranslations, setCourseDetailsTranslations] = useState({});
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
@@ -38,11 +38,11 @@ function CourseList() {
   }, []);
 
   useEffect(() => {
-    const fetchCourseNameTranslations = async () => {
+    const fetchCourseDetailsTranslations = async () => {
       try {
         console.log("Fetching name translations for selected language:", selectedLanguage);
         const token = localStorage.getItem('token');
-        const updatedCourseNameTranslations = {};
+        const updatedCourseDetailsTranslations = {};
         for (const course of courses) {
           const languageCode = selectedLanguage;
           const response = await fetch(`${BASE_URL}/Course/${course.id}/translations/${languageCode}`, {
@@ -54,19 +54,19 @@ function CourseList() {
           });
           if (response.ok) {
             const translations = await response.json();
-            updatedCourseNameTranslations[course.id] = translations.length > 0 ? translations[0].name : '';
+            updatedCourseDetailsTranslations[course.id] = translations.length > 0 ? translations[0] : {};
           } else {
-            console.error(`Failed to fetch course name translation for course ${course.id}:`, response.statusText);
+            console.error(`Failed to fetch course details translation for course ${course.id}:`, response.statusText);
           }
         }
-        setCourseNameTranslations(updatedCourseNameTranslations);
+        setCourseDetailsTranslations(updatedCourseDetailsTranslations);
       } catch (error) {
-        console.error('Error fetching course name translations:', error);
+        console.error('Error fetching course details translations:', error);
       }
     };
 
-    fetchCourseNameTranslations();
-  }, [selectedLanguage, courses]); // Fetch course name translations when selected language or courses change
+    fetchCourseDetailsTranslations();
+  }, [selectedLanguage, courses]); // Fetch course details translations when selected language or courses change
 
   const handleLearnButtonClick = async (courseId) => {
     try {
@@ -110,7 +110,8 @@ function CourseList() {
                 style={{ objectFit: 'cover', height: '200px' }}
               />
               <div className="card-body">
-                <h5 className="card-title">{courseNameTranslations[course.id]}</h5>
+                <h5 className="card-title">{courseDetailsTranslations[course.id]?.name}</h5>
+                <p className="card-text">{courseDetailsTranslations[course.id]?.description}</p>
                 <div className="btn-group" role="group">
                   <button onClick={() => handleLearnButtonClick(course.id)} className="btn btn-primary">{t('Learn')}</button>
                 </div>

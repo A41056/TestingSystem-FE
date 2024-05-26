@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
 import { useLanguage } from './LanguageProvider'; 
 
 function Learn() {
@@ -9,13 +10,21 @@ function Learn() {
   const { courseId } = useParams();
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
+  const [exam, setExam] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
   const [token, setToken] = useState('');
+  const [userId, setUserId] = useState('');
 
   console.log("Learn: " + selectedLanguage);
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
+    console.log(storedToken);
     if (storedToken) {
       setToken(storedToken);
+      const decodedToken = jwtDecode(storedToken); // Decode the token
+      const {nameid: userId} = decodedToken;
+      setUserId(userId);
+      console.log(userId);
     }
   }, []);
 
@@ -26,6 +35,7 @@ function Learn() {
   useEffect(() => {
     if (selectedLesson) {
       fetchLessonVideo(selectedLesson);
+      fetchExam(selectedLesson.id);
     }
   }, [selectedLesson]); 
 
@@ -50,6 +60,58 @@ function Learn() {
       }
     } catch (error) {
       console.error('Error fetching lessons:', error);
+    }
+  };
+
+  const fetchExam = async () => {
+    if (!token) return; 
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/exam/lesson/${selectedLesson.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Fetch Exam");
+      if (response.ok) {
+        const data = await response.json();
+        setExam(data);
+
+        fetchSubmissions(userId, data.examId);
+      } else {
+        setExam(null);
+        console.error('Failed to fetch exam:', response.statusText);
+      }
+    } catch (error) {
+      setExam(null);
+      console.error('Error fetching exam:', error);
+    }
+  };
+
+  const fetchSubmissions = async (userId, examId) => {
+    console.log(userId + " " + examId);
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/submission/getSubmissions?userId=${userId}&examId=${examId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.data);
+        setSubmissions(data.data);
+      } else {
+        console.error('Failed to fetch submissions:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
     }
   };
 
@@ -90,7 +152,15 @@ function Learn() {
           <div className="col-lg-8">
             {/* Video iframe */}
             <div id="video-container"></div>
+            {exam && (
+              <div className="mt-3">
+                <Link to={`/do-exam/${exam.examId}`} className="btn btn-primary">
+                  {t('Take Exam')}
+                </Link>
+              </div>
+            )}
           </div>
+
           <div className="col-lg-4">
             <h2>{t('Lessons')}</h2>
             <ul className="list-group">
@@ -101,6 +171,31 @@ function Learn() {
               ))}
             </ul>
           </div>
+
+          {/* Submissions Table */}
+          <div className="mt-3">
+              <h2>{t('Submissions')}</h2>
+              {submissions.length > 0 ? (
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>{t('Score')}</th>
+                      <th>{t('Submission Date')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {submissions.map((submission) => (
+                      <tr key={submission.id}>
+                        <td>{submission.score}</td>
+                        <td>{submission.submittedAt}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p>{t('No submissions found')}</p>
+              )}
+            </div>
         </div>
       </div>
     </div>
