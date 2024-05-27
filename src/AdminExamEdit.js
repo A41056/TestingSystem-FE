@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminExamEdit() {
   const { t } = useTranslation();
@@ -176,14 +178,14 @@ function AdminExamEdit() {
       if (response.ok) {
         const exam = await response.json();
         console.log('Exam updated successfully:', exam);
-        alert('Exam updated successfully');
+        toast.success('Exam updated successfully');
         // Handle success, maybe redirect or show a success message
       } else {
-        console.error('Failed to update exam:', response.statusText);
+        toast.error('Failed to update exam:', response.statusText);
         // Handle error, maybe show an error message to the user
       }
     } catch (error) {
-      console.error('Error updating exam:', error);
+      toast.error('Error updating exam:', error);
       // Handle error, maybe show an error message to the user
     }
   };
@@ -232,9 +234,9 @@ function AdminExamEdit() {
       }));
 
       // Display a success message to the user
-      alert('Translations saved successfully');
+      toast.success('Translations saved successfully');
     } catch (error) {
-      console.error('Error saving translations:', error);
+      toast.error('Error saving translations:', error);
       // Handle error, maybe show an error message to the user
     }
   };
@@ -255,6 +257,7 @@ function AdminExamEdit() {
       if (!response.ok) {
         throw new Error(`Failed to save question translation for question ID ${questionId}`);
       }
+      toast.success('QuestionTranslation save successfull')
     } catch (error) {
       throw new Error(`Error saving question translation for question ID ${questionId}: ${error.message}`);
     }
@@ -283,6 +286,7 @@ function AdminExamEdit() {
 
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="container">
         <h2>{t('EditExam')}</h2>
         <div className="mb-3">

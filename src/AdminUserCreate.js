@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminUserCreate() {
   const { t } = useTranslation();
@@ -42,7 +44,7 @@ function AdminUserCreate() {
       });
 
       if (response.ok) {
-        alert('User added successfully');
+        toast.success('User added successfully');
         // Clear form fields after successful user creation
         setFormData({
           userName: '',
@@ -58,15 +60,16 @@ function AdminUserCreate() {
         });
         // Redirect or perform any other action upon successful user creation
       } else {
-        console.error('Failed to add user:', response.statusText);
+        toast.error('Failed to add user:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding user:', error);
+      toast.error('Error adding user:', error);
     }
   };
   
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="tab-content rounded-bottom">
         <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
           <div className="col-12">

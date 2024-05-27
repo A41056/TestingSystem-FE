@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminCategoryTranslationCreate() {
   const { t } = useTranslation();
@@ -87,7 +89,7 @@ function AdminCategoryTranslationCreate() {
       });
 
       if (response.ok) {
-        alert('Translation added successfully');
+        toast.success('Translation added successfully');
         // Clear form fields after successful translation creation
         setTranslationData({
           name: '',
@@ -96,10 +98,10 @@ function AdminCategoryTranslationCreate() {
         });
         // Redirect or perform any other action upon successful translation creation
       } else {
-        console.error('Failed to add translation:', response.statusText);
+        toast.error('Failed to add translation:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding translation:', error);
+      toast.error('Error adding translation:', error);
     }
   };
   
@@ -109,6 +111,7 @@ function AdminCategoryTranslationCreate() {
 
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="tab-content rounded-bottom">
         <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
           <div className="col-12">

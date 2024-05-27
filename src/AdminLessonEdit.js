@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminLessonEdit() {
   const { t } = useTranslation();
@@ -60,17 +62,18 @@ function AdminLessonEdit() {
         body: JSON.stringify({ ...lessonData, lessonId }), // Include lessonId in the request body
       });
       if (response.ok) {
-        alert('Lesson information updated successfully!');
+        toast.success('Lesson information updated successfully!');
       } else {
-        console.error('Failed to update lesson information:', response.statusText);
+        toast.error('Failed to update lesson information:', response.statusText);
       }
     } catch (error) {
-      console.error('Error updating lesson information:', error);
+      toast.error('Error updating lesson information:', error);
     }
   };  
 
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="tab-content rounded-bottom">
         <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
           <div className="col-12">

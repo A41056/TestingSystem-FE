@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider';
+import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; // Correctly import regular heart icon
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function CourseList() {
   const { t } = useTranslation();
   const { selectedLanguage } = useLanguage();
   const [courses, setCourses] = useState([]);
   const [courseDetailsTranslations, setCourseDetailsTranslations] = useState({});
+  const [favorites, setFavorites] = useState(new Set());
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
@@ -35,7 +42,7 @@ function CourseList() {
     };
 
     fetchCourses();
-  }, []);
+  }, [BASE_URL]);
 
   useEffect(() => {
     const fetchCourseDetailsTranslations = async () => {
@@ -66,7 +73,29 @@ function CourseList() {
     };
 
     fetchCourseDetailsTranslations();
-  }, [selectedLanguage, courses]); // Fetch course details translations when selected language or courses change
+  }, [selectedLanguage, courses, BASE_URL]);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`${BASE_URL}/user/favorites/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('Fetched favorites:', response.data); // Log fetched favorites
+        const favoriteCourseIds = new Set(response.data.map(fav => fav.courseId));
+        setFavorites(favoriteCourseIds);
+        console.log('Updated favorites state:', favoriteCourseIds); // Log updated state
+      } catch (error) {
+        console.error('Failed to fetch favorite courses', error);
+      }
+    };
+
+    fetchFavorites();
+  }, [BASE_URL]);
 
   const handleLearnButtonClick = async (courseId) => {
     try {
@@ -86,8 +115,6 @@ function CourseList() {
 
       if (response.ok) {
         console.log('User history inserted successfully');
-        // Optionally, you can perform any other actions after successful insertion
-
         navigate(`/learn/${courseId}`);
       } else {
         console.error('Failed to insert user history:', response.statusText);
@@ -95,10 +122,67 @@ function CourseList() {
     } catch (error) {
       console.error('Error inserting user history:', error);
     }
-  };  
+  };
+
+  const handleDetailButtonClick = (courseId) => {
+    navigate(`/course/${courseId}`);
+  };
+
+  const handleFavoriteClick = async (courseId) => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    if (favorites.has(courseId)) {
+      // Remove from favorites
+      try {
+        await axios.delete(`${BASE_URL}/user/favorite`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            userId,
+            courseId,
+          },
+        });
+        setFavorites(prev => {
+          const newFavorites = new Set(prev);
+          newFavorites.delete(courseId);
+          console.log('Removed from favorites:', courseId); // Log removed favorite
+          console.log('Updated favorites state:', newFavorites); // Log updated state
+          return newFavorites;
+        });
+        toast.success(t('Course removed from favorites'));
+      } catch (error) {
+        console.error('Failed to remove favorite course', error);
+        toast.error(t('Failed to remove favorite course'));
+      }
+    } else {
+      // Add to favorites
+      try {
+        await axios.post(`${BASE_URL}/user/favorite`, {
+          userId,
+          courseId,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setFavorites(prev => {
+          const newFavorites = new Set(prev).add(courseId);
+          console.log('Added to favorites:', courseId); // Log added favorite
+          console.log('Updated favorites state:', newFavorites); // Log updated state
+          return newFavorites;
+        });
+        toast.success(t('Course added to favorites'));
+      } catch (error) {
+        console.error('Failed to mark favorite course', error);
+        toast.error(t('Failed to mark favorite course'));
+      }
+    }
+  };
 
   return (
     <div className="container site-section">
+      <ToastContainer />
       <div className="row">
         {courses.map((course, index) => (
           <div key={course.id} className="col-md-4 mb-4">
@@ -114,6 +198,10 @@ function CourseList() {
                 <p className="card-text">{courseDetailsTranslations[course.id]?.description}</p>
                 <div className="btn-group" role="group">
                   <button onClick={() => handleLearnButtonClick(course.id)} className="btn btn-primary">{t('Learn')}</button>
+                  <button onClick={() => handleDetailButtonClick(course.id)} className="btn btn-secondary">{t('Detail')}</button>
+                  <button onClick={() => handleFavoriteClick(course.id)} className="btn btn-light">
+                    <FontAwesomeIcon icon={favorites.has(course.id) ? solidHeart : regularHeart} />
+                  </button>
                 </div>
               </div>
             </div>

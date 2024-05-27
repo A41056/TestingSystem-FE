@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminCategoryCreate() {
   const { t } = useTranslation();
@@ -36,7 +38,7 @@ function AdminCategoryCreate() {
       });
 
       if (response.ok) {
-        alert('Category added successfully');
+        toast.success('Category added successfully');
         // Clear form fields after successful category creation
         setFormData({
           nameNonAscii: '',
@@ -45,15 +47,18 @@ function AdminCategoryCreate() {
         });
         // Redirect or perform any other action upon successful category creation
       } else {
+        toast.error('Failed to add category:', response.statusText);
         console.error('Failed to add category:', response.statusText);
       }
     } catch (error) {
       console.error('Error adding category:', error);
+      toast.error('Error adding category:', error);
     }
   };
   
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="tab-content rounded-bottom">
         <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
           <div className="col-12">

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminCourseTranslationCreate() {
   const { t } = useTranslation();
@@ -100,7 +101,7 @@ function AdminCourseTranslationCreate() {
       });
 
       if (response.ok) {
-        alert('Course translation added successfully');
+        toast.success('Course translation added successfully');
         // Clear form fields after successful course translation creation
         setFormData({
           name: '',
@@ -112,15 +113,16 @@ function AdminCourseTranslationCreate() {
         });
         // Redirect or perform any other action upon successful course translation creation
       } else {
-        console.error('Failed to add course translation:', response.statusText);
+        toast.error('Failed to add course translation:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding course translation:', error);
+      toast.error('Error adding course translation:', error);
     }
   };
 
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="container-fluid">
         <div className="card mb-4">
           <div className="card-header">

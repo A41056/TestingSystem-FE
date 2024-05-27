@@ -6,7 +6,6 @@ export const LanguageProvider = ({ children }) => {
   const [selectedLanguage, setSelectedLanguage] = useState('ru-RU'); // Default language is 'en' (English)
 
   const changeLanguage = (languageCode) => {
-    console.log("LanguageProvider: " + languageCode);
     setSelectedLanguage(languageCode);
     const event = new CustomEvent('languageChange', { detail: languageCode });
     window.dispatchEvent(event);

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login({ onLoginSuccess }) {
     const { t } = useTranslation();
@@ -49,24 +51,28 @@ function Login({ onLoginSuccess }) {
                     navigate('/admin-users');
                 } else if (roleId === 'User'){
                     onLoginSuccess(username, token,roleId, userId);
+                    
                     navigate('/home'); // Navigate to home for other roles
                 }
                 else{
+                    toast.error('Invalid username or password');
                     setError('Invalid username or password');
                 }
 
             } else {
                 // Handle login failure
                 setError('Invalid username or password');
+                toast.error('Invalid username or password');
             }
         } catch (error) {
-            console.error('Error during login:', error);
+            toast.error('Error during login:', error);
             setError('An error occurred while logging in');
         }
     };
 
     return (
         <div className="site-section mt-5">
+            <ToastContainer/>
             <div className="container">
                 <h2 className="text-center mb-4">{t('SignIn')}</h2> {/* Title */}
                 <div className="row justify-content-center">

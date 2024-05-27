@@ -34,6 +34,7 @@ import AdminCourseTranslationCreate from './AdminCourseTranslationCreate';
 import AdminLessonTranslationCreate from './AdminLessonTranslationCreate';
 import AdminLessonEdit from './AdminLessonEdit';
 import AdminCourseEdit from './AdminCourseEdit';
+import AdminCourseDetailCreate from './AdminCourseDetailCreate';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -126,6 +127,7 @@ function AuthenticatedRoutes({isAuthenticated, username, role, userId }) {
             <Route path="/admin-edit-course/:courseId" element={<AdminCourseEdit />} />
             <Route path="/admin-create-lesson/:courseId" element={<AdminLessionCreate />} />
             <Route path="/admin-create-course-translation/:courseId" element={<AdminCourseTranslationCreate />} />
+            <Route path="/admin-create-detail/:courseId" element={<AdminCourseDetailCreate />} />
 
             <Route path="/admin-edit-lesson/:courseId/:lessonId" element={<AdminLessonEdit />} />
             <Route path="/admin-create-lesson-translation/:courseId/:lessonId" element={<AdminLessonTranslationCreate />} />

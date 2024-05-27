@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Register() {
     const { t } = useTranslation();
@@ -46,19 +48,18 @@ function Register() {
             });
 
             if (response.ok) {
-                console.log('Registration successful');
-                alert('Registration successful');
+                toast.success('Registration successful');
             } else {
-                console.error('Registration failed');
-                alert('Registration failed');
+                toast.error('Registration failed');
             }
         } catch (error) {
-            console.error('Error during registration:', error);
+            toast.error('Error during registration:', error);
         }
     };
 
     return (
         <div className="site-section">
+            <ToastContainer/>
             <div className="container">
                 <h2 className="text-center mb-4">{t('WebUserSignUp')}</h2>
                 <div className="row justify-content-center">

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function UserChangePassword() {
     const { t } = useTranslation();
@@ -17,7 +19,7 @@ function UserChangePassword() {
         event.preventDefault();
 
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
+            toast.error('Passwords do not match');
             return;
         }
 
@@ -43,18 +45,20 @@ function UserChangePassword() {
                 setOldPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
+                toast.success('Password reset successfully');
             } else {
-                setError('An error occurred while changing password');
+                toast.error('An error occurred while changing password');
                 setSuccess('');
             }
         } catch (error) {
-            setError('An error occurred while changing password');
+            toast.error('An error occurred while changing password');
             setSuccess('');
         }
     };
 
     return (
         <div className="site-section mt-5">
+            <ToastContainer/>
             <div className="container">
                 <h2 className="text-center mb-4">{t('ChangePassword')}</h2>
                 <div className="row justify-content-center">

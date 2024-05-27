@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminUserEdit() {
   const { t } = useTranslation();
@@ -79,17 +81,18 @@ function AdminUserEdit() {
         }),
       });
       if (response.ok) {
-        alert('User information updated successfully!');
+        toast.success('User information updated successfully!');
       } else {
-        console.error('Failed to update user information:', response.statusText);
+        toast.error('Failed to update user information:', response.statusText);
       }
     } catch (error) {
-      console.error('Error updating user information:', error);
+      toast.error('Error updating user information:', error);
     }
   };
 
   return (
     <div className="site-section">
+      <ToastContainer/>
         <div className="tab-content rounded-bottom">
       <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
         <div className="col-12">

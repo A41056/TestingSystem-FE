@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function DoExam() {
   const { t } = useTranslation();
@@ -164,14 +166,12 @@ function DoExam() {
         body: JSON.stringify(submitRequest),
       });
       if (response.ok) {
-        console.log('Answers submitted successfully!');
+        toast.success('Answers submitted successfully!');
       } else {
-        console.error('Failed to submit answers:', response.statusText);
+        toast.error('Failed to submit answers:', response.statusText);
       }
-
-      console.log('Submitting exam...');
     } catch (error) {
-      console.error('Error submitting exam:', error);
+      toast.error('Error submitting exam:', error);
     }
     finally {
       navigate('/exam-list');
@@ -184,6 +184,7 @@ function DoExam() {
 
   return (
     <div className="container site-section">
+      <ToastContainer/>
       <h1 className="my-4">{exam.title}</h1>
       <form onSubmit={handleSubmit}>
         {exam.questions.map((question) => (

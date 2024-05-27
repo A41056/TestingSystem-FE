@@ -128,8 +128,6 @@ function AdminCourseManager() {
                 <tr>
                   <th scope="col">{t('Number')}</th>
                   <th scope="col">{t('Name')}</th>
-                  <th scope="col">{t('Category')}</th>
-                  <th scope="col">{t('Author')}</th>
                   <th scope="col">{t('Status')}</th>
                   <th scope="col">{t('Action')}</th>
                 </tr>
@@ -145,12 +143,11 @@ function AdminCourseManager() {
                     <tr key={course.id}>
                       <td>{index + 1}</td>
                       <td>{courseNameTranslations[course.id]}</td>
-                      <td>{course.categoryId}</td>
-                      <td>{course.authorId}</td>
                       <td>{course.status}</td>
                       <td className="d-flex align-items-center">
                         <Link to={`/admin-edit-course/${course.id}`} className="me-2">{t('Edit')}</Link>
                         <Link to={`/admin-create-course-translation/${course.id}`} className="btn btn-primary ms-2">{t('CreateTranslation')}</Link>
+                        <Link to={`/admin-create-detail/${course.id}`} className="btn btn-primary ms-2">{t('CreateDetail')}</Link>
                         <Link to={`/admin-create-lesson/${course.id}`} className="btn btn-primary ms-2">{t('CreateLesson')}</Link>
                         <button
                           className="btn btn-danger ms-2"

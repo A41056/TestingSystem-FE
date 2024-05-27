@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminCategoryEdit() {
   const { t } = useTranslation();
@@ -42,10 +44,12 @@ function AdminCategoryEdit() {
           isActive: categoryData.isActive,
         });
       } else {
+        toast.error('Failed to fetch category:', response.statusText);
         console.error('Failed to fetch category:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching category:', error);
+      toast.error('Error fetching category:', error);
     }
   };
 
@@ -68,18 +72,21 @@ function AdminCategoryEdit() {
       });
 
       if (response.ok) {
-        alert('Category updated successfully');
+        toast.success('Category updated successfully');
         // Redirect or perform any other action upon successful category update
       } else {
         console.error('Failed to update category:', response.statusText);
+        toast.error('Failed to update category:', response.statusText);
       }
     } catch (error) {
       console.error('Error updating category:', error);
+      toast.error('Error updating category:', error);
     }
   };
   
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="tab-content rounded-bottom">
         <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
           <div className="col-12">

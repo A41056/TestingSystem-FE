@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminLogin({ onLoginSuccess }) {
     const [username, setUsername] = useState('');
@@ -42,21 +44,21 @@ function AdminLogin({ onLoginSuccess }) {
                     onLoginSuccess(username, token);
                     navigate('/'); 
                 }else{
-                    setError('Invalid username or password');
+                    toast.error('Invalid username or password');
                 }
 
             } else {
                 // Handle login failure
-                setError('Invalid username or password');
+                toast.error('Invalid username or password');
             }
         } catch (error) {
-            console.error('Error during login:', error);
-            setError('An error occurred while logging in');
+            toast.error('Error during login:', error);
         }
     };
 
     return (
         <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+            <ToastContainer/>
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="col-lg-8">

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ForgotPassword() {
     const { t } = useTranslation();
@@ -16,6 +18,7 @@ function ForgotPassword() {
         // Validate email
         if (!email) {
             setEmailError('Please enter your email');
+            toast.error('Please enter your email')
             return;
         }
 
@@ -31,17 +34,20 @@ function ForgotPassword() {
 
             if (response.ok) {
                 setResetPasswordSuccess(true);
+                toast.success('Reset password success, please check your email.');
             } else {
-                setEmailError('Failed to send reset password link. Please try again later.');
+                toast.error('Failed to send reset password link. Please try again later.');
+                
             }
         } catch (error) {
-            console.error('Error sending reset password link:', error);
+            toast.error('Error sending reset password link:', error);
             setEmailError('An error occurred while sending the reset password link.');
         }
     };
 
     return (
         <div className="site-section mt-5">
+            <ToastContainer/>
             <div className="container">
                 <h2 className="text-center mb-4">{t('ForgotPassword')}</h2>
                 <div className="row justify-content-center">

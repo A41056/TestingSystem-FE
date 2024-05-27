@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
-
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminExamCreate() {
   const { t } = useTranslation();
@@ -170,7 +171,7 @@ function AdminExamCreate() {
 
       if (response.ok) {
         const exam = await response.json();
-        alert('Exam saved successfully');
+        toast.success('Exam saved successfully');
         setSaveSuccess(true);
 
         // Call function to save translations after saving the exam
@@ -178,10 +179,10 @@ function AdminExamCreate() {
 
         navigate("/exam-list");
       } else {
-        console.error('Failed to save exam:', response.statusText);
+        toast.error('Failed to save exam:', response.statusText);
       }
     } catch (error) {
-      console.error('Error saving exam:', error);
+      toast.error('Error saving exam:', error);
     }
   };
 
@@ -227,7 +228,7 @@ function AdminExamCreate() {
         }
       }
     } catch (error) {
-      console.error('Error saving translations:', error);
+      toast.error('Error saving translations:', error);
     }
   };
 
@@ -252,12 +253,12 @@ function AdminExamCreate() {
       });
   
       if (response.ok) {
-        alert('Question translation saved successfully');
+        toast.success('Question translation saved successfully');
       } else {
-        console.error('Failed to save question translation:', response.statusText);
+        toast.error('Failed to save question translation:', response.statusText);
       }
     } catch (error) {
-      console.error('Error saving question translation:', error);
+      toast.error('Error saving question translation:', error);
     }
   };
   
@@ -283,17 +284,18 @@ function AdminExamCreate() {
       });
   
       if (response.ok) {
-        alert('Answer translation saved successfully');
+        toast.success('Answer translation saved successfully');
       } else {
-        console.error('Failed to save answer translation:', response.statusText);
+        toast.error('Failed to save answer translation:', response.statusText);
       }
     } catch (error) {
-      console.error('Error saving answer translation:', error);
+      toast.error('Error saving answer translation:', error);
     }
   };
 
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="container">
         <h2>{t('EditExam')}</h2>
         {saveSuccess && (

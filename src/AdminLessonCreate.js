@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AdminLessonCreate() {
   const { t } = useTranslation();
@@ -68,7 +70,7 @@ function AdminLessonCreate() {
       });
   
       if (response.ok) {
-        alert('Lesson added successfully');
+        toast.success('Lesson added successfully');
         // Clear form fields after successful lesson creation
         setFormData({
           title: '',
@@ -78,10 +80,10 @@ function AdminLessonCreate() {
         // Fetch lessons again to update the list
         fetchLessonsByCourseId();
       } else {
-        console.error('Failed to add lesson:', response.statusText);
+        toast.error('Failed to add lesson:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding lesson:', error);
+      toast.error('Error adding lesson:', error);
     }
   };  
 
@@ -98,17 +100,18 @@ function AdminLessonCreate() {
       if (response.ok) {
         // Remove the lesson from the state
         setLessons(lessons.filter((lesson) => lesson.id !== lessonId));
-        console.log('Lesson deleted successfully!');
+        toast.success('Lesson deleted successfully!');
       } else {
-        console.error('Failed to delete lesson:', response.statusText);
+        toast.error('Failed to delete lesson:', response.statusText);
       }
     } catch (error) {
-      console.error('Error deleting lesson:', error);
+      toast.error('Error deleting lesson:', error);
     }
   };
 
   return (
     <div className="site-section">
+      <ToastContainer/>
       <div className="tab-content rounded-bottom">
         <div className="tab-pane p-3 active preview" role="tabpanel" id="preview-1003">
           <div className="col-12">
