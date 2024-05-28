@@ -15,13 +15,58 @@ function AdminCourseDetailCreate() {
   });
   const [languageList, setLanguageList] = useState([]);
   const [detailTranslations, setDetailTranslations] = useState([]);
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     fetchLanguageList();
-    fetchDetailTranslations();
+    fetchCourseDetails();
   }, []);
 
-  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const fetchCourseDetails = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BASE_URL}/course/${courseId}/details`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const courseDetails = await response.json();
+        const courseDetailId = courseDetails?.id; // Assuming the ID is present in the response object
+        if (courseDetailId) {
+          fetchDetailTranslations(courseDetailId);
+        }
+      } else {
+        console.error('Failed to fetch course details:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching course details:', error);
+    }
+  };
+
+  const fetchLanguageList = async () => {
+    // Fetch the list of languages
+    try {
+      const response = await fetch(`${BASE_URL}/languages`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const languages = await response.json();
+        setLanguageList(languages);
+      } else {
+        console.error('Failed to fetch language list:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching language list:', error);
+    }
+  };
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -40,7 +85,7 @@ function AdminCourseDetailCreate() {
         },
         body: JSON.stringify(courseId),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         const courseDetailId = data;
@@ -53,7 +98,7 @@ function AdminCourseDetailCreate() {
           },
           body: JSON.stringify({ ...formData, courseDetailId: courseDetailId }),
         });
-  
+
         if (translationResponse.ok) {
           toast.success('Course detail and translation added successfully');
           // Clear form fields after successful creation
@@ -73,28 +118,6 @@ function AdminCourseDetailCreate() {
       }
     } catch (error) {
       toast.error('Error adding course detail:', error);
-    }
-  };  
-
-  const fetchLanguageList = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/Language/list`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const languageData = await response.json();
-        setLanguageList(languageData);
-      } else {
-        console.error('Failed to fetch language list:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error fetching language list:', error);
     }
   };
 

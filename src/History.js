@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider';
+import { Link } from 'react-router-dom';
 
 function History() {
   const { t } = useTranslation();
   const { selectedLanguage } = useLanguage();
   const [userHistory, setUserHistory] = useState([]);
   const [courseNameTranslations, setCourseNameTranslations] = useState({});
+  const [submissionHistory, setSubmissionHistory] = useState({});
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
@@ -27,6 +29,8 @@ function History() {
           setUserHistory(userHistoryData);
           // Fetch course translations after fetching user history
           fetchCourseTranslations(userHistoryData);
+          // Fetch submission history for each course
+          fetchSubmissionHistories(userHistoryData, userId);
         } else {
           console.error('Failed to fetch user history:', response.statusText);
         }
@@ -62,6 +66,36 @@ function History() {
       }
     };
 
+    const fetchSubmissionHistories = async (userHistoryData, userId) => {
+      try {
+        const token = localStorage.getItem('token');
+        const updatedSubmissionHistory = {};
+        for (const historyItem of userHistoryData) {
+          const request = {
+            userId: userId,
+            courseId: historyItem.courseId
+          };
+          const response = await fetch(`${BASE_URL}/user/histories`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(request),
+          });
+          if (response.ok) {
+            const submissions = await response.json();
+            updatedSubmissionHistory[historyItem.courseId] = submissions;
+          } else {
+            console.error(`Failed to fetch submission history for course ${historyItem.courseId}:`, response.statusText);
+          }
+        }
+        setSubmissionHistory(updatedSubmissionHistory);
+      } catch (error) {
+        console.error('Error fetching submission history:', error);
+      }
+    };
+
     fetchUserHistory();
   }, [selectedLanguage]); // Fetch course translations when selected language changes
 
@@ -78,9 +112,26 @@ function History() {
             </thead>
             <tbody>
               {userHistory.map((historyItem, index) => (
-                <tr key={index}>
-                  <td>{courseNameTranslations[historyItem.courseId]}</td>
-                </tr>
+                <React.Fragment key={index}>
+                  <tr>
+                    <td><strong style={{ fontSize: '1.5em' }}>{courseNameTranslations[historyItem.courseId]}</strong></td>
+                  </tr>
+                  {submissionHistory[historyItem.courseId] && submissionHistory[historyItem.courseId].map((submission, subIndex) => (
+                    <tr key={subIndex}>
+                      <td colSpan="2">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            {t('Score')}:{submission.score}<br />
+                            {t('SubmittedAt')}: {new Date(submission.submittedAt).toLocaleString()}
+                          </div>
+                          <Link to={`/exam-history/${submission.examId}`} className="btn btn-primary">
+                            {t('ViewExamHistory')}
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>
               ))}
             </tbody>
           </table>

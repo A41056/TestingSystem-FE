@@ -14044,3 +14044,15 @@ html:not([dir=rtl]) .wrapper {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+.correct-answer {
+  background-color: #d4edda; /* Light green background for correct answers */
+}
+
+.user-correct {
+  border: 2px solid #28a745; /* Green border for user's correct answers */
+}
+
+.user-incorrect {
+  border: 2px solid #dc3545; /* Red border for user's incorrect answers */
+}
