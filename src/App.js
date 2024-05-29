@@ -37,6 +37,7 @@ import AdminCourseEdit from './AdminCourseEdit';
 import AdminCourseDetailCreate from './AdminCourseDetailCreate';
 import ExamHistory from './ExamHistory';
 import UserNote from './UserNote';
+import CourseDetail from './CourseDetail';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -109,6 +110,7 @@ function AuthenticatedRoutes({isAuthenticated, username, role, userId }) {
             <Route path="/user-detail/:userId" element={<UserDetail />} />
             <Route path="/history" element={<History />} />
             <Route path="/user-note" element={<UserNote />} />
+            <Route path="/course-details" element={<CourseDetail />} />
             
             <Route path="/admin-home" element={<AdminHome />} />
 

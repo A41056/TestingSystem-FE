@@ -58,7 +58,7 @@ function Home(){
                 </div>
                 <div className="feature-1-content">
                   <h2>{t('PersonalizeLearning')}</h2>
-                  <p><a href="#" className="btn btn-primary px-4 rounded-0">{t('LearnMore')}</a></p>
+                  <p><Link to='/user-note' className="btn btn-primary px-4 rounded-0">{t('LearnMore')}</Link></p>
                 </div>
               </div>
             </div>
@@ -80,7 +80,7 @@ function Home(){
                 </div>
                 <div className="feature-1-content">
                   <h2>{t('ToolsforStudents')}</h2>
-                  <p><a href="#" className="btn btn-primary px-4 rounded-0">{t('LearnMore')}</a></p>
+                  <p><Link to="/course-details" className="btn btn-primary px-4 rounded-0">{t('LearnMore')}</Link></p>
                 </div>
               </div> 
             </div>

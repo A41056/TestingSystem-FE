@@ -146,6 +146,14 @@
     "SignOut": "Sign Out",
     "History":"History",
     "UserHistory": "User History",
-    "Detail":"Detail"
+    "Detail":"Detail",
+    "Note": "Note",
+    "UserNotes":"User Notes",
+    "AddNote":"Add Note",
+    "Remove":"Remove",
+    "Score":"Score",
+    "SubmittedAt":"Submitted At",
+    "ViewExamHistory":"View Exam History",
+    "CourseDetails": "Course Details"
   }
   

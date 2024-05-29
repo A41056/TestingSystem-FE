@@ -14056,3 +14056,19 @@ html:not([dir=rtl]) .wrapper {
 .user-incorrect {
   border: 2px solid #dc3545; /* Red border for user's incorrect answers */
 }
+
+.table {
+  table-layout: fixed;
+}
+
+.table th, .table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.content-wrapper {
+  max-height: 50px; /* Adjust the height as needed */
+  overflow-y: auto; /* Add vertical scroll if content overflows */
+}
