@@ -84,12 +84,15 @@ function History() {
             body: JSON.stringify(request),
           });
           if (response.ok) {
-            const submissions = await response.json();
+            let submissions = await response.json();
+            // Sort submissions by submission date (assuming 'submittedAt' is a date field)
+            submissions.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
             updatedSubmissionHistory[historyItem.courseId] = submissions;
           } else {
             console.error(`Failed to fetch submission history for course ${historyItem.courseId}:`, response.statusText);
           }
         }
+
         setSubmissionHistory(updatedSubmissionHistory);
       } catch (error) {
         console.error('Error fetching submission history:', error);
@@ -124,8 +127,11 @@ function History() {
                             {t('Score')}:{submission.score}<br />
                             {t('SubmittedAt')}: {new Date(submission.submittedAt).toLocaleString()}
                           </div>
-                          <Link to={`/exam-history/${submission.examId}`} className="btn btn-primary">
-                            {t('ViewExamHistory')}
+                          <Link
+                              to={`/exam-history/${submission.examId}/${submission.id}`}
+                              className="btn btn-primary"
+                          >
+                              {t('ViewExamHistory')}
                           </Link>
                         </div>
                       </td>

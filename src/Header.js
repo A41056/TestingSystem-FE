@@ -173,6 +173,9 @@ function Header({ isAuthenticated, username, userId }) {
                   <li>
                     <Link to="/history" className="nav-link text-left">{t('History')}</Link>
                   </li>
+                  <li>
+                    <Link to="/user-note" className="nav-link text-left">{t('Note')}</Link>
+                  </li>
                 </ul>
               </nav>
             </div>

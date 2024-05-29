@@ -36,6 +36,7 @@ import AdminLessonEdit from './AdminLessonEdit';
 import AdminCourseEdit from './AdminCourseEdit';
 import AdminCourseDetailCreate from './AdminCourseDetailCreate';
 import ExamHistory from './ExamHistory';
+import UserNote from './UserNote';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -107,6 +108,7 @@ function AuthenticatedRoutes({isAuthenticated, username, role, userId }) {
             <Route path="/learn/:courseId" element={<Learn />} />
             <Route path="/user-detail/:userId" element={<UserDetail />} />
             <Route path="/history" element={<History />} />
+            <Route path="/user-note" element={<UserNote />} />
             
             <Route path="/admin-home" element={<AdminHome />} />
 
@@ -117,7 +119,7 @@ function AuthenticatedRoutes({isAuthenticated, username, role, userId }) {
             <Route path="/admin-exams" element={<AdminExamManager />} />
             <Route path="/admin-create-exam" element={<AdminExamCreate />} />
             <Route path="/admin-edit-exam/:examId" element={<AdminExamEdit />} />
-            <Route path="/exam-history/:examId" element={<ExamHistory />} />
+            <Route path="/exam-history/:examId/:submissionId" element={<ExamHistory />} />
 
             <Route path="/admin-categories" element={<AdminCategoryManager />} />
             <Route path="/admin-create-category" element={<AdminCategoryCreate />} />

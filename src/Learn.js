@@ -11,7 +11,6 @@ function Learn() {
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [exam, setExam] = useState(null);
-  const [submissions, setSubmissions] = useState([]);
   const [token, setToken] = useState('');
   const [userId, setUserId] = useState('');
 
@@ -79,8 +78,6 @@ function Learn() {
       if (response.ok) {
         const data = await response.json();
         setExam(data);
-
-        fetchSubmissions(userId, data.examId);
       } else {
         setExam(null);
         console.error('Failed to fetch exam:', response.statusText);
@@ -88,30 +85,6 @@ function Learn() {
     } catch (error) {
       setExam(null);
       console.error('Error fetching exam:', error);
-    }
-  };
-
-  const fetchSubmissions = async (userId, examId) => {
-    console.log(userId + " " + examId);
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/submission/getSubmissions?userId=${userId}&examId=${examId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data.data);
-        setSubmissions(data.data);
-      } else {
-        console.error('Failed to fetch submissions:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error fetching submissions:', error);
     }
   };
 
@@ -171,31 +144,6 @@ function Learn() {
               ))}
             </ul>
           </div>
-
-          {/* Submissions Table */}
-          <div className="mt-3">
-              <h2>{t('Submissions')}</h2>
-              {submissions.length > 0 ? (
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>{t('Score')}</th>
-                      <th>{t('Submission Date')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {submissions.map((submission) => (
-                      <tr key={submission.id}>
-                        <td>{submission.score}</td>
-                        <td>{submission.submittedAt}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p>{t('No submissions found')}</p>
-              )}
-            </div>
         </div>
       </div>
     </div>
