@@ -1,88 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from './LanguageProvider'; // Assuming you have a LanguageProvider context
+import { useLanguage } from './LanguageProvider';
+import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function CourseDetail() {
   const { t } = useTranslation();
-  const { courseId } = useParams(); // Get the course ID from the URL params
-  const { selectedLanguage } = useLanguage(); // Get selected language from context
-  const [courseDetailId, setCourseDetailId] = useState(null);
-  const [translations, setTranslations] = useState([]);
+  const { selectedLanguage } = useLanguage();
+  const [courseDetails, setCourseDetails] = useState([]);
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
-    const fetchCourseDetails = async () => {
+    const fetchCoursesAndDetails = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/course/${courseId}/details`, {
-          method: 'GET',
+        const courseListResponse = await axios.get(`${BASE_URL}/Course/list`, {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.ok) {
-          const courseDetails = await response.json();
-          setCourseDetailId(courseDetails?.id); // Assuming the ID is present in the response object
+        if (courseListResponse.status === 200) {
+          const courses = courseListResponse.data.data;
+          const courseDetailsPromises = courses.map(async (course) => {
+            const response = await axios.get(`${BASE_URL}/Course/${course.id}/details/translations/${selectedLanguage}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            return response.data.length > 0 ? { ...course, ...response.data[0] } : course;
+          });
+
+          const courseDetails = await Promise.all(courseDetailsPromises);
+          setCourseDetails(courseDetails);
         } else {
-          console.error('Failed to fetch course details:', response.statusText);
+          console.error('Failed to fetch courses:', courseListResponse.statusText);
         }
       } catch (error) {
-        console.error('Error fetching course details:', error);
+        console.error('Error fetching courses and details:', error);
       }
     };
 
-    fetchCourseDetails();
-  }, [courseId, BASE_URL]);
+    fetchCoursesAndDetails();
+  }, [selectedLanguage, BASE_URL]);
 
-  useEffect(() => {
-    const fetchDetailTranslations = async () => {
-      if (!courseDetailId) return;
-
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/course/${courseId}/details/translations/${selectedLanguage}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const translations = await response.json();
-          setTranslations(translations);
-        } else {
-          console.error('Failed to fetch detail translations:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching detail translations:', error);
-      }
-    };
-
-    fetchDetailTranslations();
-  }, [courseDetailId, selectedLanguage, BASE_URL]);
+  const renderDocumentLinks = (documentUrl) => {
+    if (!documentUrl) return null;
+    const urls = documentUrl.split(',').map(url => url.trim());
+    return urls.map((url, idx) => (
+      <a key={idx} href={url} className="btn btn-link" target="_blank" rel="noopener noreferrer">
+        {t('View Document')} {idx + 1}
+      </a>
+    ));
+  };
 
   return (
     <div className="container site-section">
       <ToastContainer />
-      <h1>{t('Course Detail')}</h1>
-      <div>
-        <h2>{t('Translations')}</h2>
-        {translations.length > 0 ? (
-          translations.map((translation) => (
-            <div key={translation.id}>
-              <p>{translation.content}</p>
-              <p>{translation.documentUrl}</p>
+      <div className="row">
+        {courseDetails.map((course, index) => (
+          <div key={course.id} className="col-md-4 mb-4">
+            <div className="card h-100">
+              <img
+                src={course.courseImageUrl}
+                className="card-img-top"
+                alt={`Course ${index}`}
+                style={{ objectFit: 'cover', height: '200px' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{course.name}</h5>
+                <p className="card-text">{course.description}</p>
+                <p className="card-text">{course.content}</p>
+                {renderDocumentLinks(course.documentUrl)}
+              </div>
             </div>
-          ))
-        ) : (
-          <p>{t('No translations available')}</p>
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -168,6 +168,9 @@ function Header({ isAuthenticated, username, userId }) {
                   <Link to="/course-list" className="nav-link text-left">{t('Courses')}</Link>
                   </li>
                   <li>
+                  <Link to="/course-details" className="nav-link text-left">{t('CourseDetails')}</Link>
+                  </li>
+                  <li>
                     <Link to="/exam-list" className="nav-link text-left">{t('Exams')}</Link>
                   </li>
                   <li>

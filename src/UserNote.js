@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider';
 import { jwtDecode } from 'jwt-decode'; // Import jwtDecode function
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function UserNote() {
   const { t } = useTranslation();
@@ -54,11 +56,12 @@ function UserNote() {
       });
       if (response.ok) {
         setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
+        toast.success("Removed note");
       } else {
-        console.error('Failed to remove note:', response.statusText);
+        toast.error('Failed to remove note:', response.statusText);
       }
     } catch (error) {
-      console.error('Error removing note:', error);
+      toast.error('Error removing note:', error);
     }
   };
 
@@ -76,16 +79,18 @@ function UserNote() {
         // Refetch notes after adding a new note
         fetchNotes();
         setNewNote('');
+        toast.success("Added note");
       } else {
-        console.error('Failed to add note:', response.statusText);
+        toast.error('Failed to add note:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding note:', error);
+      toast.error('Error adding note:', error);
     }
   };
 
   return (
     <div className="container site-section">
+      <ToastContainer/>
       <h2 className="my-4">{t('UserNotes')}</h2>
       <div className="input-group">
         <input

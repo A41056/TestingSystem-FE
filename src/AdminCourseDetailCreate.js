@@ -50,10 +50,12 @@ function AdminCourseDetailCreate() {
   const fetchLanguageList = async () => {
     // Fetch the list of languages
     try {
-      const response = await fetch(`${BASE_URL}/languages`, {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BASE_URL}/Language/list`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -152,95 +154,103 @@ function AdminCourseDetailCreate() {
             <strong>{t('CreateCourseDetail')}</strong>
           </div>
           <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="content" className="form-label">{t('Content')}</label>
-                <textarea
-                  className="form-control"
-                  id="content"
-                  name="content"
-                  value={formData.content}
-                  onChange={handleChange}
-                  required
-                ></textarea>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="documentUrl" className="form-label">{t('DocumentUrl')}</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="documentUrl"
-                  name="documentUrl"
-                  value={formData.documentUrl}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="sortOrder" className="form-label">{t('SortOrder')}</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="sortOrder"
-                  name="sortOrder"
-                  value={formData.sortOrder}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="languageCode" className="form-label">{t('LanguageCode')}</label>
-                <select
-                  className="form-select custom-select"
-                  id="languageCode"
-                  name="languageCode"
-                  value={formData.languageCode}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">{t('SelectLanguage')}</option>
-    {languageList.map(language => (
-    <option key={language.code} value={language.code}>{language.name}</option>
-    ))}
-    </select>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="content" className="form-label">{t('Content')}</label>
+              <textarea
+                className="form-control"
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                required
+              ></textarea>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="documentUrl" className="form-label">{t('DocumentUrl')}</label>
+              <input
+                type="text"
+                className="form-control"
+                id="documentUrl"
+                name="documentUrl"
+                value={formData.documentUrl}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="sortOrder" className="form-label">{t('SortOrder')}</label>
+              <input
+                type="number"
+                className="form-control"
+                id="sortOrder"
+                name="sortOrder"
+                value={formData.sortOrder}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="languageCode" className="form-label">{t('LanguageCode')}</label>
+              <select
+                className="form-select custom-select"
+                id="languageCode"
+                name="languageCode"
+                value={formData.languageCode}
+                onChange={handleChange}
+                required
+              >
+                <option value="">{t('SelectLanguage')}</option>
+                {languageList.map(language => (
+                  <option key={language.code} value={language.code}>{language.name}</option>
+                ))}
+              </select>
+            </div>
+            <Link className="btn btn-secondary me-2" to="/admin-courses">{t('Back')}</Link>
+            <button type="submit" className="btn btn-primary">{t('CreateDetail')}</button>
+          </form>
+          </div>
+        </div>
+      </div>
+      <div className="container-fluid mt-4">
+        <div className="card">
+          <div className="card-header">
+            <strong>{t('CourseDetailTranslations')}</strong>
+          </div>
+          <div className="card-body">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>{t('LanguageCode')}</th>
+                    <th>{t('Content')}</th>
+                    <th>{t('DocumentUrl')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detailTranslations.map(translation => (
+                    <tr key={translation.id}>
+                      <td>{translation.languageCode}</td>
+                      <td>
+                        <div className="content-wrapper">
+                          {translation.content}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="content-wrapper">
+                          {translation.documentUrl}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <Link className="btn btn-secondary me-2" to={/admin-courses/}>{t('Back')}</Link>
-    <button type="submit" className="btn btn-primary">{t('CreateDetail')}</button>
-    </form>
-    </div>
-    </div>
-    </div>
-    <div className="container-fluid mt-4">
-    <div className="card">
-    <div className="card-header">
-    <strong>{t('CourseDetailTranslations')}</strong>
-    </div>
-    <div className="card-body">
-    <table className="table">
-    <thead>
-    <tr>
-    <th>{t('LanguageCode')}</th>
-    <th>{t('Content')}</th>
-    <th>{t('DocumentUrl')}</th>
-    <th>{t('SortOrder')}</th>
-    </tr>
-    </thead>
-    <tbody>
-    {detailTranslations.map(translation => (
-    <tr key={translation.id}>
-    <td>{translation.languageCode}</td>
-    <td>{translation.content}</td>
-    <td>{translation.documentUrl}</td>
-    <td>{translation.sortOrder}</td>
-    </tr>
-    ))}
-    </tbody>
-    </table>
-    </div>
-    </div>
-    </div>
-    </div>
-    );
+  );   
 }
 
 export default AdminCourseDetailCreate;

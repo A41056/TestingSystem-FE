@@ -146,6 +146,14 @@
     "SignOut":"Đăng xuất",
     "History":"Lịch sử",
     "UserHistory": "Lịch sử người dùng",
-    "Detail":"Chi tiết"
+    "Detail":"Chi tiết",
+    "Note":"Ghi chú",
+    "UserNotes": "Ghi chú",
+    "AddNote": "Thêm ghi chú",
+    "Remove":"Xóa",
+    "Score":" Điểm",
+    "SubmittedAt":"Thời gian nộp",
+    "ViewExamHistory":"Xem lịch sử",
+    "CourseDetails": "Chi tiết khóa học"
   }
   
