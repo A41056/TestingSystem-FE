@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
+import { jwtDecode } from 'jwt-decode';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
 import { toast, ToastContainer } from 'react-toastify';
@@ -10,27 +10,28 @@ function AdminExamCreate() {
   const { t } = useTranslation();
   const { selectedLanguage } = useLanguage();
 
-  useEffect(() => {
-  }, [selectedLanguage]);
-
+  const [courseId, setCourseId] = useState('');
   const [lessonId, setLessonId] = useState('');
   const [examTitle, setExamTitle] = useState('');
+  const [courses, setCourses] = useState([]);
+  const [lessons, setLessons] = useState([]);
   const [questions, setQuestions] = useState([
-    { content: '', type: 'single', isSingleChoice: true, answers: [{ content: '', correct: false }] }
+    { explanation: '', type: 'single', isSingleChoice: true, answers: [{ name: '', correct: false }] }
   ]);
 
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [languageList, setLanguageList] = useState([]);
-  const [selectedLanguageCode, setSelectedLanguageCode] = useState(''); // Add selected language state
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState('');
 
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchLanguageList = async () => {
+    const fetchCourses = async () => {
+      console.log("Fetching Course");
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/Language/list`, {
+        const response = await fetch(`${BASE_URL}/Course/list`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -39,36 +40,90 @@ function AdminExamCreate() {
         });
 
         if (response.ok) {
-          const languageData = await response.json();
-          setLanguageList(languageData);
+          const courseData = await response.json();
+          const translatedCourses = await fetchCourseTranslations(courseData.data);
+          setCourses(translatedCourses);
         } else {
-          console.error('Failed to fetch language list:', response.statusText);
+          console.error('Failed to fetch courses:', response.statusText);
         }
       } catch (error) {
-        console.error('Error fetching language list:', error);
+        console.error('Error fetching courses:', error);
       }
     };
 
-    fetchLanguageList();
-  }, [BASE_URL]);
+    const fetchCourseTranslations = async (courses) => {
+      const token = localStorage.getItem('token');
+      const languageCode = selectedLanguage;
+      console.log("CourseTrans: "+ languageCode);
+      const translatedCourses = await Promise.all(courses.map(async (course) => {
+        const response = await fetch(`${BASE_URL}/Course/${course.id}/translations/${languageCode}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const translations = await response.json();
+          console.log("Course Translation: " + JSON.stringify(translations, null, 2));
+          return { ...course, name: translations[0]?.name || course.name };
+        } else {
+          return course;
+        }
+      }));
+      return translatedCourses;
+    };
 
-  const handleLessonIdChange = e => {
+    fetchCourses();
+  }, [BASE_URL, selectedLanguage]);
+
+  const fetchLessons = async (courseId) => {
+    console.log("Fetching lesson: " + courseId);
+    try {
+      const token = localStorage.getItem('token');
+      const languageCode = selectedLanguage;
+      const response = await fetch(`${BASE_URL}/Lesson/${courseId}/lessons/${languageCode}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const lessonData = await response.json();
+        setLessons(lessonData);
+      } else {
+        console.error('Failed to fetch lessons:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching lessons:', error);
+    }
+  };
+
+  const handleCourseChange = (e) => {
+    const selectedCourseId = e.target.value;
+    setCourseId(selectedCourseId);
+    fetchLessons(selectedCourseId);
+  };
+
+  const handleLessonChange = (e) => {
     setLessonId(e.target.value);
   };
-  
+
   const handleTitleChange = e => {
     setExamTitle(e.target.value);
   };
 
   const handleQuestionContentChange = (e, index) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index].explanation  = e.target.value;
+    updatedQuestions[index].explanation = e.target.value;
     setQuestions(updatedQuestions);
   };
 
   const handleQuestionTypeChange = (e, index) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index].isSingleChoice = e.target.value === "true" ? true : false; // Assign boolean value
+    updatedQuestions[index].isSingleChoice = e.target.value === "true";
     setQuestions(updatedQuestions);
   };
 
@@ -83,14 +138,12 @@ function AdminExamCreate() {
     const currentQuestion = updatedQuestions[questionIndex];
     const currentAnswer = currentQuestion.answers[answerIndex];
 
-    if (currentQuestion.isSingleChoice.toString() === 'true') {
-      // For single-choice questions, toggle the correctness of the clicked answer
-      updatedQuestions[questionIndex].answers.forEach((answer, idx) => {
+    if (currentQuestion.isSingleChoice) {
+      currentQuestion.answers.forEach((answer, idx) => {
         answer.correct = idx === answerIndex;
       });
-    } else if (currentQuestion.isSingleChoice.toString() === 'false') {
-      // For multiple-choice questions, toggle the correctness of the clicked answer independently
-      updatedQuestions[questionIndex].answers[answerIndex].correct = !currentAnswer.correct;
+    } else {
+      currentAnswer.correct = !currentAnswer.correct;
     }
 
     setQuestions(updatedQuestions);
@@ -100,11 +153,10 @@ function AdminExamCreate() {
     setQuestions([
       ...questions,
       { 
-        content: '', 
-        explanation: '', // Initialize explanation property as well
+        explanation: '', 
         type: 'single', 
-        isSingleChoice: true, // Initialize isSingleChoice property
-        answers: [{ content: '', correct: false }] 
+        isSingleChoice: true,
+        answers: [{ name: '', correct: false }] 
       }
     ]);
   };
@@ -113,7 +165,7 @@ function AdminExamCreate() {
     const updatedQuestions = [...questions];
     updatedQuestions[questionIndex].answers = [
       ...updatedQuestions[questionIndex].answers,
-      { content: '', isCorrect: false }
+      { name: '', correct: false }
     ];
     setQuestions(updatedQuestions);
   };
@@ -133,14 +185,11 @@ function AdminExamCreate() {
   const handleSaveExam = async () => {
     try {
       const token = localStorage.getItem('token');
-      const decodedToken = jwtDecode(token); // Decode the token
-      console.log(decodedToken);
+      const decodedToken = jwtDecode(token);
       const { nameid: userId } = decodedToken;
-      console.log(userId);
-      
+
       const apiUrl = `${BASE_URL}/Exam/create`;
-      
-      // Format the exam data according to the CreateOrUpdateExamRequest model
+
       const requestBody = {
         lessonId: lessonId,
         title: examTitle,
@@ -150,8 +199,8 @@ function AdminExamCreate() {
         modifiedByUserId: userId,
         questions: questions.map((question, index) => ({
           explanation: question.explanation,
-          sortOrder: index, // Assuming you want to maintain the order of questions
-          isSingleChoice: question.isSingleChoice || false,
+          sortOrder: index,
+          isSingleChoice: question.isSingleChoice,
           answers: question.answers.map((answer, index) => ({
             name: answer.name,
             correct: answer.correct,
@@ -169,161 +218,81 @@ function AdminExamCreate() {
         body: JSON.stringify(requestBody),
       });
 
-      if (response.ok) {
         const exam = await response.json();
         toast.success('Exam saved successfully');
         setSaveSuccess(true);
 
-        // Call function to save translations after saving the exam
-        await saveTranslations(exam.questions);
-
         navigate("/exam-list");
-      } else {
-        toast.error('Failed to save exam:', response.statusText);
-      }
     } catch (error) {
       toast.error('Error saving exam:', error);
     }
   };
 
-  const saveTranslations = async (savedQuestions) => {
-    try {
-      const token = localStorage.getItem('token');
-
-      for (const question of savedQuestions) {
-        const questionId = question.id;
-        for (const lang of languageList) {
-          const translationUrl = `${BASE_URL}/questions/${questionId}/translations`;
-          const translationBody = {
-            languageCode: lang.code,
-            content: question.explanation // Adjust if necessary
-          };
-
-          await fetch(translationUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(translationBody),
-          });
-
-          for (const answer of question.answers) {
-            const answerId = answer.id;
-            const answerTranslationUrl = `${BASE_URL}/answers/${answerId}/translations`;
-            const answerTranslationBody = {
-              languageCode: lang.code,
-              content: answer.name // Adjust if necessary
-            };
-
-            await fetch(answerTranslationUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify(answerTranslationBody),
-            });
-          }
-        }
-      }
-    } catch (error) {
-      toast.error('Error saving translations:', error);
-    }
-  };
-
-  const handleAddQuestionTranslation = async (questionIndex) => {
-    const question = questions[questionIndex];
-    try {
-      const token = localStorage.getItem('token');
-      const apiUrl = `${BASE_URL}/Question/${question.id}/translations`; // Assuming `question.id` is the correct identifier
-  
-      const requestBody = {
-        languageCode: selectedLanguageCode,
-        content: question.explanation,
-      };
-  
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-  
-      if (response.ok) {
-        toast.success('Question translation saved successfully');
-      } else {
-        toast.error('Failed to save question translation:', response.statusText);
-      }
-    } catch (error) {
-      toast.error('Error saving question translation:', error);
-    }
-  };
-  
-
-  const handleAddAnswerTranslation = async (questionIndex, answerIndex) => {
-    const answer = questions[questionIndex].answers[answerIndex];
-    try {
-      const token = localStorage.getItem('token');
-      const apiUrl = `${BASE_URL}/Answer/${answer.id}/translations`; // Assuming `answer.id` is the correct identifier
-  
-      const requestBody = {
-        languageCode: selectedLanguageCode,
-        name: answer.name,
-      };
-  
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-  
-      if (response.ok) {
-        toast.success('Answer translation saved successfully');
-      } else {
-        toast.error('Failed to save answer translation:', response.statusText);
-      }
-    } catch (error) {
-      toast.error('Error saving answer translation:', error);
-    }
-  };
-
   return (
     <div className="site-section">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="container">
-        <h2>{t('EditExam')}</h2>
-        {saveSuccess && (
-          <div className="alert alert-success" role="alert">
-            {t('Examsavedsuccessfully!')}
-          </div>
-        )}
+        <h2 className="mb-3">{t('CreateExam')}</h2>
         <div className="mb-3">
-          <label className="form-label">{t('LessonId!')}{t('(Optional)')}:</label>
-          <input type="text" className="form-control" placeholder="Enter lesson id here" value={lessonId} onChange={handleLessonIdChange} />
+          <label htmlFor="courseSelect" className="form-label">{t('Course')}</label>
+          <select
+            id="courseSelect"
+            className="form-select"
+            value={courseId}
+            onChange={handleCourseChange}
+          >
+            <option value="">{t('SelectCourse')}</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mb-3">
-          <label className="form-label">{t('Title!')}:</label>
-          <input type="text" className="form-control" placeholder="Enter exam title here" value={examTitle} onChange={handleTitleChange} />
+          <label htmlFor="lessonSelect" className="form-label">{t('Lesson')}</label>
+          <select
+            id="lessonSelect"
+            className="form-select"
+            value={lessonId}
+            onChange={handleLessonChange}
+          >
+            <option value="">{t('SelectLesson')}</option>
+            {lessons.map((lesson) => (
+              <option key={lesson.id} value={lesson.id}>
+                {lesson.title}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="examTitle" className="form-label">{t('ExamTitle')}</label>
+          <input
+            type="text"
+            className="form-control"
+            id="examTitle"
+            value={examTitle}
+            onChange={handleTitleChange}
+          />
         </div>
         {questions.map((question, questionIndex) => (
-          <div className="card mb-3" key={questionIndex}>
+          <div key={questionIndex} className="card mb-3">
             <div className="card-body">
-              <label className="form-label">{t('Question')}:</label>
-              <input type="text" className="form-control mb-2" placeholder="Enter question here" value={question.explanation} onChange={(e) => handleQuestionContentChange(e, questionIndex)} />
-              <select className="form-select mb-2" value={question.isSingleChoice.toString()} onChange={(e) => handleQuestionTypeChange(e, questionIndex)}>
-                <option value="true">{t('SingleChoice')}</option>
-                <option value="false">{t('MultipleChoices')}</option>
-              </select>
+              <div className="mb-3">
+                <label className="form-label">{t('QuestionContent')}</label>
+                <textarea className="form-control" value={question.explanation} onChange={(e) => handleQuestionContentChange(e, questionIndex)} />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">{t('QuestionType')}</label>
+                <select className="form-select" value={question.isSingleChoice.toString()} onChange={(e) => handleQuestionTypeChange(e, questionIndex)}>
+                  <option value="true">{t('SingleChoice')}</option>
+                  <option value="false">{t('MultipleChoices')}</option>
+                </select>
+              </div>
               <button className="btn btn-sm btn-outline-primary mb-2 me-2" onClick={() => handleAddAnswer(questionIndex)}>{t('AddAnswer')}</button>
               {question.answers.map((answer, answerIndex) => (
                 <div className="input-group mb-2" key={answerIndex}>
-                  <input type="text" className="form-control" placeholder="Enter answer here" value={answer.name} onChange={(e) => handleAnswerContentChange(e, questionIndex, answerIndex)} />
+                  <input type="text" className="form-control" placeholder={t('EnterAnswer')} value={answer.name} onChange={(e) => handleAnswerContentChange(e, questionIndex, answerIndex)} />
                   <div className="input-group-text">
                     <input type={question.isSingleChoice ? 'radio' : 'checkbox'} checked={answer.correct} onChange={() => handleCorrectAnswerChange(questionIndex, answerIndex)} />
                   </div>
@@ -331,32 +300,6 @@ function AdminExamCreate() {
                 </div>
               ))}
               <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleRemoveQuestion(questionIndex)}>{t('RemoveQuestion')}</button>
-              {/* Add Translation Section for Answer */}
-                <div className="mb-3">
-                <label className="form-label">{t('AnswerTranslation')}:</label>
-                <select className="form-select custom-select mb-2" id="inputLanguageCode" name="languageCode" value={selectedLanguageCode} onChange={(e) => setSelectedLanguageCode(e.target.value)}>
-                    <option value="">{t('SelectLanguage')}</option>
-                    {languageList.map(language => (
-                    <option key={language.code} value={language.code}>{language.name}</option>
-                    ))}
-                </select>
-                {question.answers.map((answer, answerIndex) => (
-                    <div key={answerIndex}>
-                    <button className="btn btn-sm btn-outline-secondary mb-2" onClick={() => handleAddAnswerTranslation(questionIndex, answerIndex)}>{t('AddAnswerTranslation')}</button>
-                    </div>
-                ))}
-                </div>
-              {/* Add Translation Section for Question */}
-              <div className="mb-3">
-                <label className="form-label">{t('QuestionTranslation')}:</label>
-                <select className="form-select custom-select mb-2" id="inputLanguageCode" name="languageCode" value={selectedLanguageCode} onChange={(e) => setSelectedLanguageCode(e.target.value)}>
-                  <option value="">{t('SelectLanguage')}</option>
-                  {languageList.map(language => (
-                    <option key={language.code} value={language.code}>{language.name}</option>
-                  ))}
-                </select>
-                <button className="btn btn-sm btn-outline-secondary mb-2" onClick={() => handleAddQuestionTranslation(questionIndex)}>{t('AddQuestionTranslation')}</button>
-              </div>
             </div>
           </div>
         ))}
