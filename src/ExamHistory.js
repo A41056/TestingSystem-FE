@@ -19,7 +19,6 @@ function ExamHistory() {
     console.log("ExamHistory: " + submissionId);
     
     useEffect(() => {
-
         const fetchExamById = async () => {
             try {
                 const response = await fetch(`${BASE_URL}/Exam/detail/${examId}`, {
@@ -131,7 +130,7 @@ function ExamHistory() {
                 });
                 if (response.ok) {
                     const choice = await response.json();
-                    updatedUserChoices.push(choice); // Push the user's choice object into the array
+                    updatedUserChoices.push(...choice); // Push the user's choice object into the array
                     console.log('User Choice for question ID', question.id, ':', choice); // Log user choice
                 } else {
                     console.error(`Failed to fetch user choice for question ID ${question.id}:`, response.statusText);
@@ -161,51 +160,52 @@ function ExamHistory() {
                             <p className="card-text">{question.translations[0].content}</p>
                         )}
                         <ul className="list-unstyled">
-                        {Array.isArray(userChoices) && userChoices.length > 0 && question.answers.map((answer) => {
-    const userAnswered = userChoices[0].find(choice => choice.questionId === question.id && choice.answerId === answer.id);
-    
+  {Array.isArray(userChoices) && userChoices.length > 0 && question.answers.map((answer) => {
+    const userAnswered = userChoices.find(choice => choice.questionId === question.id && choice.answerId === answer.id);
+
     // Check if the answer is correct
     const isCorrect = answer.correct;
 
     // Check if the user has answered this question
-    const userAnsweredThisQuestion = !!userAnswered;
+    const userAnsweredThisQuestion = userAnswered !== undefined;
 
     // Check if the user's answer is correct or incorrect
-    const userCorrect = userAnswered && userAnswered.correctAnswer;
+    const userCorrect = userAnswered ? userAnswered.correctAnswer : null;
 
     // Apply underline style if the answer is incorrect and the user has answered this question
-    const userChoiceStyle = !isCorrect && userAnsweredThisQuestion && !userCorrect ? { textDecoration: 'underline' } : {};
+    const userChoiceStyle = !isCorrect && userAnsweredThisQuestion && userCorrect === false ? { textDecoration: 'underline' } : {};
+
+    console.log(`userAnswered: ${JSON.stringify(userAnswered)} | isCorrect: ${isCorrect} | userAnsweredThisQuestion: ${userAnsweredThisQuestion} | userCorrect: ${userCorrect}`);
 
     return (
-        <li
-            key={answer.id}
-            className={`form-check ${isCorrect ? 'correct-answer' : ''}`}
-            style={userChoiceStyle}
-        >
-            <label htmlFor={answer.id} className="form-check-label">
-                {answer.name}
-                {answer.translations && answer.translations.length > 0 && (
-                    <span> - {answer.translations[0].content}</span>
-                )}
-                {isCorrect && (
-                    <FontAwesomeIcon
-                        icon={faCheck}
-                        style={{ color: 'green', marginLeft: '10px' }}
-                    />
-                )}
-                {!isCorrect && userAnsweredThisQuestion && !userCorrect && ( // Display red X icon for incorrect user answers
-                    <FontAwesomeIcon
-                        icon={faTimes}
-                        style={{ color: 'red', marginLeft: '10px' }}
-                    />
-                )}
-            </label>
-        </li>
+      <li
+        key={answer.id}
+        className={`form-check ${isCorrect ? 'correct-answer' : ''}`}
+        style={userChoiceStyle}
+      >
+        <label htmlFor={answer.id} className="form-check-label">
+          {answer.name}
+          {answer.translations && answer.translations.length > 0 && (
+            <span> - {answer.translations[0].content}</span>
+          )}
+          {isCorrect && (
+            <FontAwesomeIcon
+              icon={faCheck}
+              style={{ color: 'green', marginLeft: '10px' }}
+            />
+          )}
+          {!isCorrect && userAnsweredThisQuestion && userCorrect === false && ( // Display red X icon for incorrect user answers
+            <FontAwesomeIcon
+              icon={faTimes}
+              style={{ color: 'red', marginLeft: '10px' }}
+            />
+          )}
+        </label>
+      </li>
     );
-})}
+  })}
+</ul>
 
-
-                        </ul>
                     </div>
                 </div>
             ))}

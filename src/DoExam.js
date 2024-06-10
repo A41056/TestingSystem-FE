@@ -155,7 +155,7 @@ function DoExam() {
       <ToastContainer/>
       <h1 className="my-4">{exam.title}</h1>
       <form onSubmit={handleSubmit}>
-        {exam.questions.map((question) => (
+        {exam.questions.filter(question => !question.isDeleted).map((question) => (
           <div key={question.id} className="card my-4">
             <div className="card-body">
               <p className="card-text">{question.explanation}</p>

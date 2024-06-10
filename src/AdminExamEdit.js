@@ -114,8 +114,16 @@ function AdminExamEdit() {
   };
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { content: '', type: 'single', answers: [{ content: '', correct: false }] }]);
-  };
+    setQuestions([
+      ...questions,
+      {
+        id: null, // or some default id
+        explanation: '',
+        isSingleChoice: true, // assuming default is single choice
+        answers: [{ id: null, name: '', correct: false }]
+      }
+    ]);
+  };  
 
   const handleAddAnswer = (questionIndex) => {
     const updatedQuestions = [...questions];
@@ -128,7 +136,7 @@ function AdminExamEdit() {
 
   const handleRemoveQuestion = (questionIndex) => {
     const updatedQuestions = [...questions];
-    updatedQuestions.splice(questionIndex, 1);
+    updatedQuestions[questionIndex].isDeleted = true;
     setQuestions(updatedQuestions);
   };
 
@@ -154,9 +162,11 @@ function AdminExamEdit() {
         modifiedByUserId: userId,
         questions: questions.map((question, index) => ({
           id: question.id,
+          examId: examId,
           explanation: question.explanation,
           sortOrder: index,
           isSingleChoice: question.isSingleChoice || false,
+          isDeleted: question.isDeleted || false,
           answers: question.answers.map((answer,index) => ({
             id: answer.id,
             name: answer.name,
@@ -293,7 +303,7 @@ function AdminExamEdit() {
           <label className="form-label">{t('Title')}:</label>
           <input type="text" className="form-control" placeholder="Enter exam title here" value={examTitle} onChange={handleTitleChange} />
         </div>
-        {questions.map((question, questionIndex) => (
+        {questions.filter(question => !question.isDeleted).map((question, questionIndex) => (
           <div className="card mb-3" key={questionIndex}>
             <div className="card-body">
               <label className="form-label">{t('Question')}:</label>

@@ -50,8 +50,8 @@ function ExamList() {
                 <h5 className="card-title">{exam.title}</h5>
                 <p className="card-text">{t('Status')}: {exam.status}</p>
                 <p className="card-text">{t('AutoGrade')}: {exam.isAutoGrade ? 'Yes' : 'No'}</p>
-                <p className="card-text">{t('CreatedAt')}: {exam.createdAt}</p>
-                <p className="card-text">{t('ModifiedAt')}: {exam.modifiedAt}</p>
+                <p className="card-text">{t('CreatedAt')}: {exam.created}</p>
+                <p className="card-text">{t('ModifiedAt')}: {exam.modified}</p>
                 <p className="card-text">{t('Teacher')}: {exam.createdByUserId ? exam.createdByUserId : 'Unknown'}</p>
                 <Link to={`/do-exam/${exam.examId}`} className="btn btn-primary">{t('AttemptExam')}</Link>
                 <Link to={`/submission-detail/${exam.examId}`} className="btn btn-secondary">{t('SubmissionDetail')}</Link>
