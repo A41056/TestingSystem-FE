@@ -9,6 +9,7 @@ function AdminLessonEdit() {
   const { courseId,lessonId } = useParams();
   const [lessonData, setLessonData] = useState({
     title: '',
+    content:'',
     videoUrl: '',
     sortOrder: 0,
     courseId: '', // Add courseId if needed
@@ -84,6 +85,10 @@ function AdminLessonEdit() {
                   <div className="col-md-6">
                     <label className="form-label" htmlFor="inputTitle">{t('Title')}</label>
                     <input className="form-control" id="inputTitle" type="text" name="title" value={lessonData.title} onChange={handleChange} />
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="inputTitle">{t('TeacherInformation')}</label>
+                    <input className="form-control" id="inputTitle" type="text" name="content" value={lessonData.content} onChange={handleChange} />
                   </div>
                   <div className="col-md-6">
                     <label className="form-label" htmlFor="inputVideoUrl">{t('VideoUrl')}</label>

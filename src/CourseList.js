@@ -16,13 +16,16 @@ function CourseList() {
   const [courseDetailsTranslations, setCourseDetailsTranslations] = useState({});
   const [favorites, setFavorites] = useState(new Set());
   const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const [pageNum, setPageNum] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const PAGE_SIZE = 15;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}/Course/list`, {
+        const response = await fetch(`${BASE_URL}/Course/list?pageNum=${pageNum}&pageSize=${PAGE_SIZE}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -33,6 +36,7 @@ function CourseList() {
         if (response.ok) {
           const coursesList = await response.json();
           setCourses(coursesList.data);
+          setTotalPages(coursesList.totalPages);
         } else {
           console.error('Failed to fetch courses:', response.statusText);
         }
@@ -42,7 +46,7 @@ function CourseList() {
     };
 
     fetchCourses();
-  }, [BASE_URL]);
+  }, [BASE_URL, pageNum]);
 
   useEffect(() => {
     const fetchCourseDetailsTranslations = async () => {
@@ -180,6 +184,12 @@ function CourseList() {
     }
   };
 
+  const handlePageChange = (newPageNum) => {
+    if (newPageNum > 0 && newPageNum <= totalPages) {
+      setPageNum(newPageNum);
+    }
+  };
+
   return (
     <div className="container site-section">
       <ToastContainer />
@@ -207,6 +217,31 @@ function CourseList() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="row">
+        <div className="col-12 d-flex justify-content-center">
+          <nav>
+            <ul className="pagination">
+              <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(pageNum - 1)}>
+                  {t('Previous')}
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(num => (
+                <li key={num + 1} className={`page-item ${pageNum === num + 1 ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => handlePageChange(num + 1)}>
+                    {num + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${pageNum === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(pageNum + 1)}>
+                  {t('Next')}
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </div>
   );

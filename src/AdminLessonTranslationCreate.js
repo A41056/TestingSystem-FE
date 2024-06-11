@@ -179,7 +179,7 @@ function AdminLessonTranslationCreate() {
                             </div>
                             {/* Description */}
                             <div className="mb-3">
-                                <label htmlFor="content" className="form-label">{t('Content')}</label>
+                                <label htmlFor="content" className="form-label">{t('TeacherInformation')}</label>
                                 <textarea
                                     className="form-control"
                                     id="content"
@@ -208,7 +208,7 @@ function AdminLessonTranslationCreate() {
                                 <tr>
                                     <th>{t('LanguageCode')}</th>
                                     <th>{t('Title')}</th>
-                                    <th>{t('Content')}</th>
+                                    <th>{t('TeacherInformation')}</th>
                                 </tr>
                             </thead>
                             <tbody>

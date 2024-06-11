@@ -14,6 +14,7 @@ function AdminLessonCreate() {
   console.log(courseId);
   const [formData, setFormData] = useState({
     title: '',
+    content:'',
     videoUrl: '',
     sortOrder: '',
   });
@@ -74,6 +75,7 @@ function AdminLessonCreate() {
         // Clear form fields after successful lesson creation
         setFormData({
           title: '',
+          content:'',
           videoUrl: '',
           sortOrder: '',
         });
@@ -124,6 +126,11 @@ function AdminLessonCreate() {
                     <label className="form-label" htmlFor="inputTitle">{t('Title')}</label>
                     <input className="form-control" id="inputTitle" type="text" name="title" value={formData.title} onChange={handleChange} />
                   </div>
+                  {/*TeacherInformation*/}
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="inputTitle">{t('TeacherInformation')}</label>
+                    <input className="form-control" id="inputTitle" type="text" name="content" value={formData.content} onChange={handleChange} />
+                  </div>
                   {/* Video URL */}
                   <div className="col-md-6">
                     <label className="form-label" htmlFor="inputVideoUrl">{t('VideoURL')}</label>
@@ -150,6 +157,7 @@ function AdminLessonCreate() {
                     <tr>
                       <th>{t('SortOrder')}</th>
                       <th>{t('Title')}</th>
+                      <th>{t('TeacherInformation')}</th>
                       <th>{t('VideoURL')}</th>
                       <th scope="col">{t('Action')}</th>
                     </tr>
@@ -164,6 +172,7 @@ function AdminLessonCreate() {
                         <tr key={lesson.id}>
                           <td>{lesson.sortOrder}</td>
                           <td>{lesson.title}</td>
+                          <td>{lesson.content}</td>
                           <td>{lesson.videoUrl}</td>
                           <td className="d-flex align-items-center">
                             <Link to={`/admin-edit-lesson/${courseId}/${lesson.id}`} className="me-2">{t('Edit')}</Link>

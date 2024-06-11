@@ -29,7 +29,7 @@ function Learn() {
 
   useEffect(() => {
     fetchLessons();
-  }, [courseId, token]); 
+  }, [courseId, token, selectedLanguage]); 
 
   useEffect(() => {
     if (selectedLesson) {
@@ -140,6 +140,7 @@ function Learn() {
               {lessons.map((lesson) => (
                 <li key={lesson.id} className="list-group-item" onClick={() => handleLessonSelect(lesson)}>
                   {lesson.translatedTitle || lesson.title}
+                  <p>{lesson.content}</p>
                 </li>
               ))}
             </ul>
