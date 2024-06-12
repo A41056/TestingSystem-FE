@@ -48,6 +48,9 @@ function Home(){
                 <span>{t('WhyAcademicsWorks')}</span>
               </h2>
             </div>
+            <div className="col-lg-10 mb-5">
+              <p className="lead mb-4">{t('Paragraph')}</p>
+            </div>
           </div>
           <div className="row">
             <div className="col-lg-4 col-md-6 mb-4 mb-lg-0">

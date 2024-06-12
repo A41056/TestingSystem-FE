@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider'; 
+import { toast, ToastContainer } from 'react-toastify';
 
 function AdminExamManager() {
   const { t } = useTranslation();
   const { selectedLanguage } = useLanguage();
+  const [pageNum, setPageNum] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const PAGE_SIZE = 15;
 
   useEffect(() => {
   }, [selectedLanguage]);
@@ -20,14 +24,14 @@ function AdminExamManager() {
 
   useEffect(() => {
     fetchExams();
-  }, [filter]); // Refetch exams when filters change
+  }, [filter, pageNum]); // Refetch exams when filters change
 
   const fetchExams = async () => {
     try {
       const token = localStorage.getItem('token');
 
       // Construct the API request URL based on the filter criteria
-      let apiUrl = `${BASE_URL}/Exam/list`;
+      let apiUrl = `${BASE_URL}/Exam/list?pageNum=${pageNum}&pageSize=${PAGE_SIZE}`;
       let queryString = Object.keys(filter)
         .filter(key => filter[key] !== '')
         .map(key => `${key}=${filter[key]}`)
@@ -47,6 +51,7 @@ function AdminExamManager() {
       if (response.ok) {
         const examList = await response.json();
         setExams(examList.data);
+        setTotalPages(examList.totalPages);
       } else {
         console.error('Failed to fetch exams:', response.statusText);
       }
@@ -65,8 +70,38 @@ function AdminExamManager() {
     fetchExams();
   };
 
+  const handleDeleteExam = async (examId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BASE_URL}/Exam/delete/${examId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Update the courses state to reflect the deletion
+        setExams(exams.filter((exam) => exam.examId !== examId));
+        toast.success('Exam deleted successfully!');
+      } else {
+        console.error('Failed to delete course:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    }
+  };
+
+  const handlePageChange = (newPageNum) => {
+    if (newPageNum > 0 && newPageNum <= totalPages) {
+      setPageNum(newPageNum);
+    }
+  };
+
   return (
     <div className="site-section">
+      <ToastContainer/>
         <div className="container-fluid">
       <div className="card mb-4">
         <div className="card-header">
@@ -120,11 +155,42 @@ function AdminExamManager() {
                   <td>{exam.createdByUserId ? exam.createdByUserId : 'Unknown'}</td> {/* Perform null check */}
                   <td>
                     <Link to={`/admin-edit-exam/${exam.examId}`}>{t('Edit')}</Link>
+                    <button
+                          className="btn btn-danger ms-2"
+                          onClick={() => handleDeleteExam(exam.examId)}
+                      >
+                        {t('Delete')}
+                      </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-12 d-flex justify-content-center">
+          <nav>
+            <ul className="pagination">
+              <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(pageNum - 1)}>
+                  {t('Previous')}
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(num => (
+                <li key={num + 1} className={`page-item ${pageNum === num + 1 ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => handlePageChange(num + 1)}>
+                    {num + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${pageNum === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(pageNum + 1)}>
+                  {t('Next')}
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
