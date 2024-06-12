@@ -14,6 +14,7 @@ function AdminExamEdit() {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [examTitle, setExamTitle] = useState('');
+  const [lessonId, setLessonId] = useState('');
   const [questions, setQuestions] = useState([]);
   const [selectedLanguageCode, setSelectedLanguageCode] = useState('');
   const [questionTranslations, setQuestionTranslations] = useState({});
@@ -39,6 +40,7 @@ function AdminExamEdit() {
           console.log(examData.questions);
           setExamTitle(examData.title);
           setQuestions(examData.questions);
+          setLessonId(examData.lessonId);
         } else {
           console.error('Failed to fetch exam detail:', response.statusText);
         }
@@ -156,6 +158,7 @@ function AdminExamEdit() {
 
       const requestBody = {
         examId: examId,
+        lessonId: lessonId,
         title: examTitle,
         status: 1,
         isAutoGrade: true,
