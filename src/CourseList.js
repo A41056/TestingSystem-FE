@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './LanguageProvider';
 import axios from 'axios';
@@ -208,7 +208,7 @@ function CourseList() {
                 <p className="card-text">{courseDetailsTranslations[course.id]?.description}</p>
                 <div className="btn-group" role="group">
                   <button onClick={() => handleLearnButtonClick(course.id)} className="btn btn-primary">{t('Learn')}</button>
-                  <button onClick={() => handleDetailButtonClick(course.id)} className="btn btn-secondary">{t('Detail')}</button>
+                  <Link to="/course-details" className="btn btn-secondary">{t('Detail')}</Link>
                   <button onClick={() => handleFavoriteClick(course.id)} className="btn btn-light">
                     <FontAwesomeIcon icon={favorites.has(course.id) ? solidHeart : regularHeart} />
                   </button>
